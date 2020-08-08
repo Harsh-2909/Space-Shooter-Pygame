@@ -43,6 +43,7 @@ def main():
     score = 0
     level = 1
     lives = 5
+    PLAYER_VEL = 5
     main_font = pygame.font.SysFont("comicsans", size= 50)
     ship = Ship(300, 650)
     
@@ -54,6 +55,7 @@ def main():
         lives_label = main_font.render(f"Lives: {lives}", 1, (255,255,255))
         WIN.blit(lives_label, (10, 10))
         WIN.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
+        # SHIP DRAWING
         ship.draw(WIN)
         pygame.display.update()
     
@@ -66,12 +68,12 @@ def main():
                 run = False
         
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]: # left
-            ship.x -= 1
-        if keys[pygame.K_d]: # right
-            ship.x += 1
-        if keys[pygame.K_w]: # up
-            ship.y -= 1
-        if keys[pygame.K_s]: # down
-            ship.y += 1
+        if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and ship.x - PLAYER_VEL > 0: # left
+            ship.x -= PLAYER_VEL
+        if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and ship.x + PLAYER_VEL < WIDTH: # right
+            ship.x += PLAYER_VEL
+        if (keys[pygame.K_w] or keys[pygame.K_UP]) and ship.y - PLAYER_VEL > 0: # up
+            ship.y -= PLAYER_VEL
+        if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and ship.y + PLAYER_VEL < HEIGHT: # down
+            ship.y += PLAYER_VEL
 main()
