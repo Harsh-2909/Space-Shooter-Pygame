@@ -155,7 +155,6 @@ def main():
     lost = False
     lost_count = 0
     FPS = 60
-    score = 0
     level = 0
     lives = 5
     PLAYER_VEL = 5
@@ -211,7 +210,7 @@ def main():
             level += 1
             wave_length += 5
             for _ in range(wave_length):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000, -100), random.choice(["red", "green", "blue"]))
+                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500 *(1+level//4), -100), random.choice(["red", "green", "blue"]))
                 enemies.append(enemy)
 
         for event in pygame.event.get():
