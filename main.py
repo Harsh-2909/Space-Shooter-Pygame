@@ -42,7 +42,6 @@ class Laser:
     
     def collision(self, obj):
         return collide(self, obj)
-    
 
 # Ship Parent class to inherit player and enemy ship class
 class Ship:
@@ -109,7 +108,8 @@ class Player(Ship):
                 for obj in objs:
                     if laser.collision(obj):
                         objs.remove(obj)
-                        self.lasers.remove(laser)
+                        if laser in self.lasers:
+                            self.lasers.remove(laser)
     
     def draw(self, window):
         super().draw(window)
@@ -160,11 +160,11 @@ def main():
     lives = 5
     PLAYER_VEL = 5
     ENEMY_VEL = 1
-    LASER_VELO = 3
+    LASER_VELO = 5
     enemies = []
     wave_length = 0
     main_font = pygame.font.SysFont("comicsans", size= 50)
-    player = Player(300, 650)
+    player = Player(300, 630)
     
     clock = pygame.time.Clock()
 
@@ -216,7 +216,7 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                quit()
         
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and player.x - PLAYER_VEL > 0: # left
@@ -225,7 +225,7 @@ def main():
             player.x += PLAYER_VEL
         if (keys[pygame.K_w] or keys[pygame.K_UP]) and player.y - PLAYER_VEL > 0: # up
             player.y -= PLAYER_VEL
-        if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + PLAYER_VEL + player.get_height() < HEIGHT: # down
+        if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + PLAYER_VEL + player.get_height() + 15 < HEIGHT: # down
             player.y += PLAYER_VEL
         if keys[pygame.K_SPACE]:
             player.shoot()
@@ -242,4 +242,20 @@ def main():
                 lives -= 1
                 enemies.remove(enemy)
         player.move_lasers(LASER_VELO, enemies)
-main()
+
+def main_menu():
+    title_font = pygame.font.SysFont("comicsans", 75)
+    run = True
+    while run:
+        title_label = title_font.render("Press the mouse to begin...", 1, (255,255,255))
+        WIN.blit(BG, (0,0))
+        WIN.blit(title_label, ((WIDTH-title_label.get_width())//2, (HEIGHT-title_label.get_height())//2))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+    pygame.quit()
+
+main_menu()
