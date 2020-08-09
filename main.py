@@ -74,11 +74,16 @@ class Enemy(Ship):
 
 def main():
     run = True
+    lost = False
+    lost_count = 0
     FPS = 60
     score = 0
-    level = 1
+    level = 0
     lives = 5
     PLAYER_VEL = 5
+    ENEMY_VEL = 1
+    enemies = []
+    wave_length = 0
     main_font = pygame.font.SysFont("comicsans", size= 50)
     player = Player(300, 650)
     
@@ -96,14 +101,39 @@ def main():
         WIN.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
         # SHIP DRAWING
+        for enemy in enemies:
+            enemy.draw(WIN)
+
         player.draw(WIN)
         
+        # IF WE LOSE
+        if lost:
+            lost_label = main_font.render("YOU LOST!", 1, (255,255,255))
+            WIN.blit(lost_label, ((WIDTH-lost_label.get_width())//2, (HEIGHT-lost_label.get_height())//2))
+
         # UPDATING THE DISPLAY
         pygame.display.update()
     
     while run:
         clock.tick(FPS)
-        redraw_window()
+        redraw_window() # UPDATING DISPLAY
+
+        if lives <= 0 or player.health <= 0:
+            lost = True
+            lost_count += 1
+        if lost:
+            if lost_count > FPS*3:
+                run = False
+            else:
+                continue
+            
+        # ADDING ENEMIES IN THE LIST AND SPAWNING THEM
+        if len(enemies) == 0:
+            level += 1
+            wave_length += 5
+            for _ in range(wave_length):
+                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000, -100), random.choice(["red", "green", "blue"]))
+                enemies.append(enemy)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -118,4 +148,11 @@ def main():
             player.y -= PLAYER_VEL
         if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + PLAYER_VEL + player.get_height() < HEIGHT: # down
             player.y += PLAYER_VEL
+        
+        for enemy in enemies[:]:
+            enemy.move(ENEMY_VEL)
+            if enemy.y + enemy.get_height() > HEIGHT:
+                lives -= 1
+                enemies.remove(enemy)
+            
 main()
