@@ -110,6 +110,15 @@ class Player(Ship):
                     if laser.collision(obj):
                         objs.remove(obj)
                         self.lasers.remove(laser)
+    
+    def draw(self, window):
+        super().draw(window)
+        self.healthbar(WIN)
+
+
+    def healthbar(self, window):
+        pygame.draw.rect(window, (255,0,0), (self.x, self.y+self.get_height()+10, self.get_width(), 10))
+        pygame.draw.rect(window, (0,255,0), (self.x, self.y+self.get_height()+10, int(self.get_width()*(self.health/self.max_health)), 10))
 
 # Enemy ship class which inherits from ship class
 class Enemy(Ship):
@@ -226,7 +235,10 @@ def main():
             enemy.move_lasers(LASER_VELO, player)
             if random.randrange(0, 2*FPS) == 1: # Or shoot every 2 second with randomness
                 enemy.shoot()
-            if enemy.y + enemy.get_height() > HEIGHT:
+            if collide(enemy, player):
+                player.health -= 10
+                enemies.remove(enemy)
+            elif enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
                 enemies.remove(enemy)
         player.move_lasers(LASER_VELO, enemies)
