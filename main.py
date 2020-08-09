@@ -23,6 +23,27 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"
 # LOAD BACKGROUND
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
 
+# Laser Class for shooting lasers
+class Laser:
+    def __init__(self, x, y, img):
+        self.x = x
+        self.y = y
+        self.img = img
+        self.mask = pygame.mask.from_surface(self.img)
+    
+    def draw(self, window):
+        window.blit(self.img, (self.x, self.y))
+    
+    def move(self, laser_velo):
+        self.y -= laser_velo
+    
+    def off_screen(self, height):
+        return self.y <= height and self.y >= 0
+    
+    def collision(self, obj):
+        return collide(self, obj)
+    
+
 # Ship Parent class to inherit player and enemy ship class
 class Ship:
     def __init__(self, x, y, health= 100):
@@ -72,6 +93,11 @@ class Enemy(Ship):
     def move(self, vel): # To move down the enemy ship
         self.y += vel
 
+def collide(obj1, obj2):
+    offset_x = obj2.x - obj1.x
+    offset_y = obj2.y - obj1.y
+    return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
+
 def main():
     run = True
     lost = False
@@ -82,6 +108,7 @@ def main():
     lives = 5
     PLAYER_VEL = 5
     ENEMY_VEL = 1
+    LASER_VELO = 3
     enemies = []
     wave_length = 0
     main_font = pygame.font.SysFont("comicsans", size= 50)
@@ -110,7 +137,10 @@ def main():
         if lost:
             lost_label = main_font.render("YOU LOST!", 1, (255,255,255))
             WIN.blit(lost_label, ((WIDTH-lost_label.get_width())//2, (HEIGHT-lost_label.get_height())//2))
-
+        
+        # DRAWING LASERS
+        for laser in player.lasers:
+            laser.draw(WIN)
         # UPDATING THE DISPLAY
         pygame.display.update()
     
@@ -148,11 +178,20 @@ def main():
             player.y -= PLAYER_VEL
         if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + PLAYER_VEL + player.get_height() < HEIGHT: # down
             player.y += PLAYER_VEL
+        if keys[pygame.K_SPACE] and player.cool_down_counter == 0:
+            laser = Laser(player.x, player.y, player.laser_img)
+            player.lasers.append(laser)
+            player.cool_down_counter = FPS * 1
         
+        if player.cool_down_counter:
+            player.cool_down_counter -= 1
+
         for enemy in enemies[:]:
             enemy.move(ENEMY_VEL)
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
                 enemies.remove(enemy)
-            
+        
+        for laser in player.lasers:
+            laser.move(LASER_VELO)
 main()
