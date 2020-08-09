@@ -35,7 +35,7 @@ class Laser:
         window.blit(self.img, (self.x, self.y))
     
     def move(self, laser_velo):
-        self.y -= laser_velo
+        self.y += laser_velo
     
     def off_screen(self, height):
         return self.y > height or self.y < 0
@@ -102,7 +102,7 @@ class Player(Ship):
     def move_lasers(self, vel, objs):
         self.cooldown()
         for laser in self.lasers:
-            laser.move(vel)
+            laser.move(-vel)
             if laser.off_screen(HEIGHT):
                 self.lasers.remove(laser)
             else:
@@ -129,6 +129,12 @@ class Enemy(Ship):
     
     def move(self, vel): # To move down the enemy ship
         self.y += vel
+
+    def shoot(self): # To offset the laser position
+        if self.cool_down_counter == 0:
+            laser = Laser(self.x-20, self.y, self.laser_img)
+            self.lasers.append(laser)
+            self.cool_down_counter = 1
 
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
@@ -218,6 +224,8 @@ def main():
         for enemy in enemies[:]:
             enemy.move(ENEMY_VEL)
             enemy.move_lasers(LASER_VELO, player)
+            if random.randrange(0, 2*FPS) == 1: # Or shoot every 2 second with randomness
+                enemy.shoot()
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
                 enemies.remove(enemy)
