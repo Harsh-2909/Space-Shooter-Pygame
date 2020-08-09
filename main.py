@@ -53,6 +53,25 @@ class Player(Ship):
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
 
+# Enemy ship class which inherits from ship class
+class Enemy(Ship):
+
+    COLOR_MAP = {
+        "red": (RED_SPACESHIP, RED_LASER),
+        "blue": (BLUE_SPACESHIP, BLUE_LASER),
+        "green": (GREEN_SPACESHIP, GREEN_LASER)
+    }
+
+    def __init__(self, x, y, color, health= 100):
+        super().__init__(x, y, health)
+        self.ship_img = self.COLOR_MAP[color][0]
+        self.laser_img = self.COLOR_MAP[color][1]
+        self.mask = pygame.mask.from_surface(self.ship_img)
+        self.max_health = health
+    
+    def move(self, vel): # To move down the enemy ship
+        self.y += vel
+
 def main():
     run = True
     FPS = 60
@@ -64,15 +83,22 @@ def main():
     player = Player(300, 650)
     
     clock = pygame.time.Clock()
+
     def redraw_window():
+
+        # DRAWING THE BACKGROUND
         WIN.blit(BG, (0,0))
+
         # DRAW TEXT
         level_label = main_font.render(f"Level: {level}", 1, (255,255,255))
         lives_label = main_font.render(f"Lives: {lives}", 1, (255,255,255))
         WIN.blit(lives_label, (10, 10))
         WIN.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
+
         # SHIP DRAWING
         player.draw(WIN)
+        
+        # UPDATING THE DISPLAY
         pygame.display.update()
     
     while run:
