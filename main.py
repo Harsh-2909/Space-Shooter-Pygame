@@ -229,6 +229,10 @@ def main():
         if keys[pygame.K_SPACE]:
             player.shoot()
         
+        mouse_press = pygame.mouse.get_pressed()
+        if mouse_press[0]: # Fires the laser if the mouse key is pressed
+            player.shoot()
+        
         for enemy in enemies[:]:
             enemy.move(ENEMY_VEL)
             enemy.move_lasers(LASER_VELO, player)
