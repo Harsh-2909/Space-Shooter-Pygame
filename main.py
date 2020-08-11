@@ -3,6 +3,7 @@ import time
 import os
 import random
 
+pygame.mixer.pre_init(44100, 16, 4, 4096) #frequency, size, channels, buffersize
 pygame.init()
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -22,6 +23,10 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"
 
 # LOAD BACKGROUND
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
+
+# LOAD SOUND EFFECTS
+explosion_sound = pygame.mixer.Sound(os.path.join("music", "explosion.wav"))
+laser_sound = pygame.mixer.Sound(os.path.join("music", "laser.wav"))
 
 # Laser Class for shooting lasers
 class Laser:
@@ -69,6 +74,7 @@ class Ship:
                 self.lasers.remove(laser)
             elif laser.collision(obj):
                 obj.health -= 10
+                pygame.mixer.Channel(2).play(explosion_sound)
                 self.lasers.remove(laser)
 
     def cooldown(self):
@@ -80,6 +86,8 @@ class Ship:
     def shoot(self):
         if self.cool_down_counter == 0:
             laser = Laser(self.x, self.y, self.laser_img)
+            if sound_check(laser):
+                pygame.mixer.Channel(0).play(laser_sound)
             self.lasers.append(laser)
             self.cool_down_counter = 1
 
@@ -107,6 +115,7 @@ class Player(Ship):
             else:
                 for obj in objs:
                     if laser.collision(obj):
+                        pygame.mixer.Channel(2).play(explosion_sound)
                         objs.remove(obj)
                         if laser in self.lasers:
                             self.lasers.remove(laser)
@@ -142,6 +151,8 @@ class Enemy(Ship):
     def shoot(self): # To offset the laser position
         if self.cool_down_counter == 0:
             laser = Laser(self.x-20, self.y, self.laser_img)
+            if sound_check(laser):
+                pygame.mixer.Channel(1).play(laser_sound)
             self.lasers.append(laser)
             self.cool_down_counter = 1
 
@@ -149,6 +160,12 @@ def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
+
+def sound_check(obj: Laser): # To see if the laser is out of bound or not
+    if obj.y < 0 or obj.y > 750:
+        return False
+    else:
+        return True
 
 def main():
     run = True
@@ -240,6 +257,7 @@ def main():
                 enemy.shoot()
             if collide(enemy, player):
                 player.health -= 10
+                pygame.mixer.Channel(2).play(explosion_sound)
                 enemies.remove(enemy)
             elif enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
