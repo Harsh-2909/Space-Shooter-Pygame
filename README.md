@@ -4,7 +4,7 @@ A Space Shooter 2D game created in Python 3 using Pygames. It takes inspiration 
 
 ## Demonstration
 
-[![Demonstration](https://s3.amazonaws.com/img0.recordit.co/ubzHtuUy1N.mp4?AWSAccessKeyId=AKIAUQ5RURZ7ND2T2B6I&Expires=1597224073&Signature=0IBblwgYBK2LYFFCRNNdOEbzqhg%3D)]()
+![Gameplay](http://g.recordit.co/ubzHtuUy1N.gif)
 
 ## How to Play
 
